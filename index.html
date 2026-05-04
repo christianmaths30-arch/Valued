@@ -1167,6 +1167,15 @@ document.getElementById('auth-modal').addEventListener('click', function(e) {
 document.getElementById('add-item-modal').addEventListener('click', function(e) {
   if (e.target === this) closeAddItemModal();
 });
+document.getElementById('item-detail-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeItemDetail();
+});
+
+// Verification checkbox highlight
+document.getElementById('verify-checks').addEventListener('change', e => {
+  if (e.target.type === 'checkbox')
+    e.target.closest('.verify-opt').classList.toggle('checked', e.target.checked);
+});
 
 // Wire up the CTA email form
 document.querySelector('.signup-row .btn-red').addEventListener('click', function() {
