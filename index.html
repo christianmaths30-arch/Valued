@@ -505,6 +505,33 @@ body[data-view=profile] .profile-view{display:block}
   </div>
 </section>
 
+<!-- PUBLIC PROFILE VIEW -->
+<div class="profile-view" id="profile-view">
+  <div class="profile-hero">
+    <div id="profile-hero-content">
+      <div style="color:var(--text-muted);font-size:14px">Loading…</div>
+    </div>
+  </div>
+  <div class="profile-grid" id="profile-grid"></div>
+</div>
+
+<!-- USERNAME SETUP MODAL -->
+<div class="modal-overlay" id="username-modal">
+  <div class="modal">
+    <h3>Choose your username</h3>
+    <p class="modal-sub">Your public profile URL — share it with anyone.</p>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="username-input" placeholder="e.g. jordanc" maxlength="20"
+             oninput="previewUsername(this.value)"
+             onkeydown="if(event.key==='Enter')handleSaveUsername()"/>
+      <div class="username-preview-url">Your profile: <strong id="username-url-preview">#profile/username</strong></div>
+    </div>
+    <p class="modal-err" id="username-err"></p>
+    <button class="btn-red" style="width:100%;padding:13px;margin-top:0.5rem" onclick="handleSaveUsername()">Create my profile →</button>
+  </div>
+</div>
+
 <!-- AUTH MODAL -->
 <div class="modal-overlay" id="auth-modal">
   <div class="modal">
