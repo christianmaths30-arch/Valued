@@ -840,10 +840,14 @@ async function handleAddItem() {
   const errEl = document.getElementById('item-err');
   errEl.style.display = 'none';
 
-  const title  = document.getElementById('item-title').value.trim();
-  const sport  = document.getElementById('item-sport').value;
-  const price  = parseFloat(document.getElementById('item-price').value) || null;
-  const status = document.getElementById('item-status').value;
+  const title        = document.getElementById('item-title').value.trim();
+  const athlete      = document.getElementById('item-athlete').value.trim();
+  const sport        = document.getElementById('item-sport').value;
+  const condition    = document.getElementById('item-condition').value;
+  const price        = parseFloat(document.getElementById('item-price').value) || null;
+  const status       = document.getElementById('item-status').value;
+  const notes        = document.getElementById('item-notes').value.trim();
+  const verification = [...document.querySelectorAll('#verify-checks input:checked')].map(cb => cb.value);
 
   if (!title) {
     errEl.textContent = 'Please enter an item title.';
@@ -863,12 +867,16 @@ async function handleAddItem() {
   }
 
   const { error } = await sb.from('items').insert({
-    user_id:   currentUser.id,
+    user_id:      currentUser.id,
     title,
+    athlete,
     sport,
+    condition,
     price,
-    photo_url: photoUrl,
+    photo_url:    photoUrl,
     status,
+    notes,
+    verification,
   });
 
   if (error) {
