@@ -493,6 +493,14 @@ body[data-view=profile] .profile-view{display:block}
         <p class="eyebrow">Your collection</p>
         <h2 class="big">My items</h2>
         <div class="user-chip" id="user-chip"></div>
+        <div class="share-row" id="share-row">
+          <div class="share-label">Your public profile</div>
+          <div class="share-inner">
+            <div class="share-url" id="share-url"></div>
+            <button class="share-copy" id="share-copy-btn" onclick="copyProfileLink()">Copy link</button>
+            <button class="share-view" onclick="viewOwnProfile()">View profile</button>
+          </div>
+        </div>
       </div>
       <button class="btn-red" onclick="openAddItemModal()">+ Add item</button>
     </div>
