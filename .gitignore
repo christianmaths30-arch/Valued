@@ -1,0 +1,4 @@
+# Only track the Valued project files
+*
+!index.html
+!.gitignore
