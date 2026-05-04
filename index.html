@@ -870,7 +870,7 @@ async function loadPublicProfile(username) {
 
   const { data: profile, error } = await sb
     .from('profiles')
-    .select('id, username')
+    .select('id, username, display_name')
     .eq('username', username.toLowerCase())
     .single();
 
