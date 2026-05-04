@@ -626,8 +626,11 @@ sb.auth.onAuthStateChange((_event, session) => {
     document.getElementById('user-chip').innerHTML =
       `Signed in as <span>${currentUser.email}</span>`;
     loadItems();
+    checkAndPromptUsername();
   } else {
+    currentUsername = null;
     document.getElementById('my-collection').classList.remove('visible');
+    document.getElementById('share-row').classList.remove('visible');
   }
 });
 
