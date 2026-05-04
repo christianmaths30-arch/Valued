@@ -894,7 +894,7 @@ async function loadPublicProfile(username) {
 }
 
 function renderPublicProfile(profile, items) {
-  const name     = profile.display_name || profile.username;
+  const name     = profile.username;
   const initials = name.slice(0, 2).toUpperCase();
   const total    = items.reduce((s, i) => s + (Number(i.price) || 0), 0);
   const forSale  = items.filter(i => i.status === 'listed').length;
