@@ -949,7 +949,7 @@ async function checkAndPromptUsername() {
   if (!currentUser) return;
   const { data: profile } = await sb
     .from('profiles')
-    .select('username, display_name')
+    .select('username')
     .eq('id', currentUser.id)
     .single();
 
