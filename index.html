@@ -207,6 +207,42 @@ footer p{font-size:12px;color:var(--text-muted)}
 /* NAV AUTH STATE */
 #nav-signout{display:none;background:none;border:1px solid var(--border-dark);color:var(--text-muted);padding:7px 16px;border-radius:3px;font-size:11px;font-weight:600;letter-spacing:0.05em;cursor:pointer;text-transform:uppercase;transition:all 0.2s}
 #nav-signout:hover{border-color:rgba(245,237,217,0.3);color:var(--cream)}
+
+/* PUBLIC PROFILE VIEW */
+.profile-view{display:none;min-height:100vh;background:var(--dark);padding:90px 2.5rem 80px}
+body[data-view=profile] .hero,body[data-view=profile] .section-cream,body[data-view=profile] .section-dark,
+body[data-view=profile] .section-mid,body[data-view=profile] .cta-final,
+body[data-view=profile] .section-collection,body[data-view=profile] footer{display:none!important}
+body[data-view=profile] .profile-view{display:block}
+.profile-hero{max-width:1080px;margin:0 auto;padding:2rem 0 2.5rem;border-bottom:1px solid var(--border-dark);margin-bottom:3rem}
+.profile-top{display:flex;align-items:center;gap:1.4rem;margin-bottom:2rem;flex-wrap:wrap}
+.profile-avatar{width:68px;height:68px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:var(--cream);flex-shrink:0;letter-spacing:-0.03em}
+.profile-name{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;letter-spacing:-0.03em;line-height:1.1}
+.profile-handle{font-size:13px;color:var(--text-muted);margin-top:3px}
+.profile-stats{display:flex;gap:2.5rem;flex-wrap:wrap}
+.pstat{border-right:1px solid var(--border-dark);padding-right:2.5rem}
+.pstat:last-child{border-right:none;padding-right:0}
+.pstat-val{font-size:26px;font-weight:900;color:var(--cream)}
+.pstat-label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-top:2px}
+.profile-grid{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.2rem}
+.profile-not-found{max-width:480px;margin:12vh auto;text-align:center;padding:2rem}
+.profile-not-found h2{font-size:2rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:0.8rem}
+.profile-not-found p{color:var(--text-muted);font-size:15px;margin-bottom:2rem;line-height:1.6}
+.profile-sale-badge{display:inline-block;padding:3px 8px;border-radius:2px;font-size:9px;font-weight:700;letter-spacing:0.06em;background:rgba(42,157,92,0.12);color:#4ade80;border:1px solid rgba(42,157,92,0.2);margin-left:6px;vertical-align:middle}
+
+/* SHARE ROW */
+.share-row{margin-top:1.2rem;display:none}
+.share-row.visible{display:block}
+.share-label{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);margin-bottom:7px;font-weight:700}
+.share-inner{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.share-url{font-size:12px;color:var(--cream);background:var(--dark3);padding:8px 12px;border-radius:3px;border:1px solid var(--border-dark);font-family:monospace;flex:1;min-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.share-copy,.share-view{padding:8px 14px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:0.05em;cursor:pointer;border:1px solid var(--border-dark);background:transparent;color:var(--text-muted);white-space:nowrap;transition:all 0.15s}
+.share-copy:hover,.share-view:hover{color:var(--cream);border-color:rgba(245,237,217,0.3)}
+.share-copy.copied{color:#4ade80;border-color:rgba(42,157,92,0.3)}
+
+/* USERNAME SETUP MODAL */
+.username-preview-url{font-size:12px;color:var(--text-muted);margin-top:7px}
+.username-preview-url strong{color:var(--cream)}
 </style>
 </head>
 <body>
