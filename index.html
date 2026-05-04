@@ -777,9 +777,16 @@ function resetAddItemModal() {
   document.getElementById('upload-progress').style.display = 'none';
   document.getElementById('progress-fill').style.width = '0%';
   document.getElementById('item-title').value = '';
+  document.getElementById('item-athlete').value = '';
   document.getElementById('item-sport').value = '';
+  document.getElementById('item-condition').value = '';
   document.getElementById('item-price').value = '';
   document.getElementById('item-status').value = 'display';
+  document.getElementById('item-notes').value = '';
+  document.querySelectorAll('#verify-checks input').forEach(cb => {
+    cb.checked = false;
+    cb.closest('.verify-opt').classList.remove('checked');
+  });
   document.getElementById('item-err').style.display = 'none';
 }
 
