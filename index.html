@@ -981,6 +981,7 @@ async function handleSaveUsername() {
   const { error } = await sb.from('profiles').insert({
     id: currentUser.id,
     username,
+    display_name: currentUser.email.split('@')[0],
   });
 
   if (error) {
