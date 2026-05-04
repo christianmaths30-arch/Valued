@@ -850,6 +850,176 @@ function renderItems(items) {
   }).join('');
 }
 
+// ── ROUTING (hash-based: #profile/username) ───────────────────────────────────
+function handleRoute() {
+  const m = window.location.hash.match(/^#profile\/([a-zA-Z0-9_-]+)$/);
+  if (m) {
+    document.body.dataset.view = 'profile';
+    loadPublicProfile(m[1]);
+  } else {
+    delete document.body.dataset.view;
+  }
+}
+window.addEventListener('hashchange', handleRoute);
+
+// ── PUBLIC PROFILE ────────────────────────────────────────────────────────────
+async function loadPublicProfile(username) {
+  document.getElementById('profile-hero-content').innerHTML =
+    '<div style="color:var(--text-muted);font-size:14px">Loading…</div>';
+  document.getElementById('profile-grid').innerHTML = '';
+
+  const { data: profile, error } = await sb
+    .from('profiles')
+    .select('id, username, display_name')
+    .eq('username', username.toLowerCase())
+    .single();
+
+  if (error || !profile) {
+    document.getElementById('profile-hero-content').innerHTML = `
+      <div class="profile-not-found">
+        <h2>Profile not found</h2>
+        <p>No collection exists at <strong>@${username}</strong> yet.</p>
+        <button class="btn-red" onclick="window.location.hash=''">Back to Valued</button>
+      </div>`;
+    return;
+  }
+
+  const { data: items } = await sb
+    .from('items')
+    .select('*')
+    .eq('user_id', profile.id)
+    .order('created_at', { ascending: false });
+
+  renderPublicProfile(profile, items || []);
+}
+
+function renderPublicProfile(profile, items) {
+  const name     = profile.display_name || profile.username;
+  const initials = name.slice(0, 2).toUpperCase();
+  const total    = items.reduce((s, i) => s + (Number(i.price) || 0), 0);
+  const forSale  = items.filter(i => i.status === 'listed').length;
+
+  document.title = `${name} — Valued`;
+  document.getElementById('profile-hero-content').innerHTML = `
+    <div class="profile-top">
+      <div class="profile-avatar">${initials}</div>
+      <div>
+        <div class="profile-name">${name}</div>
+        <div class="profile-handle">@${profile.username}</div>
+      </div>
+    </div>
+    <div class="profile-stats">
+      <div class="pstat">
+        <div class="pstat-val">${items.length}</div>
+        <div class="pstat-label">Items</div>
+      </div>
+      ${total > 0 ? `<div class="pstat">
+        <div class="pstat-val">$${total.toLocaleString()}</div>
+        <div class="pstat-label">Collection value</div>
+      </div>` : ''}
+      ${forSale > 0 ? `<div class="pstat">
+        <div class="pstat-val">${forSale}</div>
+        <div class="pstat-label">For sale</div>
+      </div>` : ''}
+    </div>`;
+
+  document.getElementById('profile-grid').innerHTML = items.length === 0
+    ? '<p style="color:var(--text-muted);text-align:center;padding:4rem;grid-column:1/-1">No items in this collection yet.</p>'
+    : items.map(item => {
+        const photoHtml = item.photo_url
+          ? `<img class="item-photo" src="${item.photo_url}" alt="${item.title}" loading="lazy"/>`
+          : `<div class="item-photo-placeholder">${SPORT_EMOJI[item.sport] || '🏆'}</div>`;
+        const price = item.price != null
+          ? `<div class="item-price">$${Number(item.price).toLocaleString()}</div>` : '';
+        const forSaleBadge = item.status === 'listed'
+          ? '<span class="profile-sale-badge">For sale</span>' : '';
+        return `<div class="item-card">
+          ${photoHtml}
+          <div class="item-info">
+            <div class="item-title">${item.title}${forSaleBadge}</div>
+            <div class="item-sport">${item.sport || 'Memorabilia'}</div>
+            ${price}
+          </div>
+        </div>`;
+      }).join('');
+}
+
+// ── USERNAME SETUP ────────────────────────────────────────────────────────────
+async function checkAndPromptUsername() {
+  if (!currentUser) return;
+  const { data: profile } = await sb
+    .from('profiles')
+    .select('username, display_name')
+    .eq('id', currentUser.id)
+    .single();
+
+  if (!profile) {
+    document.getElementById('username-modal').classList.add('open');
+  } else {
+    currentUsername = profile.username;
+    showShareRow();
+  }
+}
+
+function previewUsername(val) {
+  const clean = val.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+  document.getElementById('username-url-preview').textContent = `#profile/${clean || 'username'}`;
+}
+
+async function handleSaveUsername() {
+  const raw      = document.getElementById('username-input').value.trim();
+  const username = raw.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+  const errEl    = document.getElementById('username-err');
+  errEl.style.display = 'none';
+
+  if (!username || username.length < 3) {
+    errEl.textContent = 'Username must be at least 3 characters (letters, numbers, - or _).';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const displayName = currentUser.email.split('@')[0];
+  const { error } = await sb.from('profiles').insert({
+    id: currentUser.id,
+    username,
+    display_name: displayName,
+  });
+
+  if (error) {
+    errEl.textContent = error.code === '23505'
+      ? 'That username is already taken — try another.'
+      : error.message;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  currentUsername = username;
+  document.getElementById('username-modal').classList.remove('open');
+  showShareRow();
+}
+
+function showShareRow() {
+  if (!currentUsername) return;
+  const base = window.location.href.split('#')[0];
+  const url  = `${base}#profile/${currentUsername}`;
+  document.getElementById('share-url').textContent = url;
+  document.getElementById('share-row').classList.add('visible');
+}
+
+function copyProfileLink() {
+  if (!currentUsername) return;
+  const base = window.location.href.split('#')[0];
+  navigator.clipboard.writeText(`${base}#profile/${currentUsername}`);
+  const btn = document.getElementById('share-copy-btn');
+  btn.textContent = 'Copied!';
+  btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'Copy link'; btn.classList.remove('copied'); }, 2000);
+}
+
+function viewOwnProfile() {
+  if (currentUsername) window.location.hash = `profile/${currentUsername}`;
+}
+
 // Close modals on overlay click
 document.getElementById('auth-modal').addEventListener('click', function(e) {
   if (e.target === this) closeAuthModal();
