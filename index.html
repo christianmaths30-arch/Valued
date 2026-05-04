@@ -891,9 +891,48 @@ async function handleAddItem() {
 
 // ── LOAD & RENDER ITEMS ───────────────────────────────────────────────────────
 const SPORT_EMOJI = {
-  Baseball: '🥎', Basketball: '🏀', Football: '🏈', Hockey: '🏒',
-  Soccer: '⚽', Tennis: '🎾', Golf: '⛳', 'Boxing / MMA': '🥊', Other: '🏆',
+  Baseball:'🥎',Basketball:'🏀',Football:'🏈',Hockey:'🏒',
+  Soccer:'⚽',Tennis:'🎾',Golf:'⛳','Boxing / MMA':'🥊',Other:'🏆',
 };
+
+function calcAIScore(item) {
+  let s = 30;
+  if (item.photo_url) s += 20;
+  if (item.athlete)   s += 12;
+  if (item.condition) s += 8;
+  if (item.price)     s += 5;
+  if (item.notes && item.notes.length > 20) s += 5;
+  if (item.verification && item.verification.length > 0)
+    s += Math.min(item.verification.length * 10, 20);
+  return Math.min(s, 100);
+}
+
+function buildItemCard(item, onclick) {
+  const title = item.title || item.name || 'Untitled';
+  const emoji = SPORT_EMOJI[item.sport] || '🏆';
+  const photo = item.photo_url
+    ? `<img class="item-photo" src="${item.photo_url}" alt="${title}" loading="lazy"/>`
+    : `<div class="item-photo-placeholder"><div class="ph-emoji">${emoji}</div><div class="ph-label">${item.sport || 'Memorabilia'}</div></div>`;
+  const priceOverlay = item.price != null
+    ? `<div class="item-price-overlay">$${Number(item.price).toLocaleString()}</div>` : '';
+  const meta = [item.athlete, item.sport].filter(Boolean).join(' · ') || 'Memorabilia';
+  const priceLine = item.price != null
+    ? `<div class="item-price-tag">$${Number(item.price).toLocaleString()}</div>` : '<div></div>';
+  const badge = item.status === 'listed'
+    ? '<span class="item-badge badge-listed">For sale</span>'
+    : '<span class="item-badge badge-display">Display</span>';
+  const verifyChips = item.verification && item.verification.length
+    ? `<div class="item-verify-strip">${item.verification.map(v=>`<span class="verify-chip">${v}</span>`).join('')}</div>` : '';
+  return `<div class="item-card" onclick="${onclick}">
+    <div class="item-photo-wrap">${photo}${priceOverlay}</div>
+    <div class="item-info">
+      <div class="item-title">${title}</div>
+      <div class="item-meta">${meta}</div>
+      ${verifyChips}
+      <div class="item-footer">${priceLine}${badge}</div>
+    </div>
+  </div>`;
+}
 
 async function loadItems() {
   const { data: items, error } = await sb
@@ -901,7 +940,6 @@ async function loadItems() {
     .select('*')
     .eq('user_id', currentUser.id)
     .order('created_at', { ascending: false });
-
   if (error) { console.error(error); return; }
   renderItems(items);
 }
@@ -909,34 +947,58 @@ async function loadItems() {
 function renderItems(items) {
   const grid = document.getElementById('items-grid');
   if (!items || items.length === 0) {
-    grid.innerHTML = `<div class="empty-state">
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
       <p>No items yet. Add your first piece to get started.</p>
       <button class="btn-red" onclick="openAddItemModal()">+ Add your first item</button>
     </div>`;
     return;
   }
+  grid.innerHTML = items.map(item =>
+    buildItemCard(item, `openItemDetail(${JSON.stringify(JSON.stringify(item))})`)
+  ).join('');
+}
 
-  grid.innerHTML = items.map(item => {
-    const photoHtml = item.photo_url
-      ? `<img class="item-photo" src="${item.photo_url}" alt="${item.title}" loading="lazy"/>`
-      : `<div class="item-photo-placeholder">${SPORT_EMOJI[item.sport] || '🏆'}</div>`;
-    const price = item.price != null
-      ? `<div class="item-price">$${Number(item.price).toLocaleString()}</div>`
-      : '';
-    const badge = item.status === 'listed'
-      ? `<span class="item-status status-listed">Listed</span>`
-      : `<span class="item-status status-display">Display</span>`;
-    return `
-      <div class="item-card">
-        ${photoHtml}
-        <div class="item-info">
-          <div class="item-title">${item.title}</div>
-          <div class="item-sport">${item.sport || 'Memorabilia'}</div>
-          ${price}
-          ${badge}
-        </div>
-      </div>`;
-  }).join('');
+// ── ITEM DETAIL MODAL ─────────────────────────────────────────────────────────
+function openItemDetail(itemJson) {
+  const item  = typeof itemJson === 'string' ? JSON.parse(itemJson) : itemJson;
+  const title = item.title || item.name || 'Untitled';
+  const score = calcAIScore(item);
+  const photo = item.photo_url
+    ? `<img class="detail-photo" src="${item.photo_url}" alt="${title}"/>`
+    : `<div class="detail-photo-placeholder">${SPORT_EMOJI[item.sport] || '🏆'}</div>`;
+
+  const badges = [
+    item.condition ? `<span class="detail-badge db-condition">${item.condition}</span>` : '',
+    item.status === 'listed'
+      ? '<span class="detail-badge db-listed">For sale</span>'
+      : '<span class="detail-badge db-display">Display only</span>',
+    ...(item.verification || []).map(v => `<span class="detail-badge db-verify">${v}</span>`),
+  ].filter(Boolean).join('');
+
+  const metaRows = [
+    item.athlete ? `<div class="detail-field"><div class="detail-field-label">Athlete</div><div class="detail-field-val">${item.athlete}</div></div>` : '',
+    item.sport   ? `<div class="detail-field"><div class="detail-field-label">Sport</div><div class="detail-field-val">${item.sport}</div></div>` : '',
+  ].filter(Boolean).join('');
+
+  document.getElementById('item-detail-inner').innerHTML = `
+    <button class="modal-close" onclick="closeItemDetail()" style="position:sticky;top:0;float:right;z-index:1">✕</button>
+    ${photo}
+    <div class="detail-title">${title}</div>
+    ${item.athlete || item.sport ? `<div class="detail-athlete">${[item.athlete, item.sport].filter(Boolean).join(' · ')}</div>` : ''}
+    ${item.price != null ? `<div class="detail-price">$${Number(item.price).toLocaleString()}</div>` : ''}
+    ${badges ? `<div class="detail-badges">${badges}</div>` : ''}
+    ${metaRows ? `<div class="detail-row">${metaRows}</div>` : ''}
+    <div class="detail-ai">
+      <div class="detail-ai-label"><span>Valued AI confidence</span><strong>${score} / 100</strong></div>
+      <div class="detail-ai-bar"><div class="detail-ai-fill" style="width:${score}%"></div></div>
+    </div>
+    ${item.notes ? `<div class="detail-notes">${item.notes}</div>` : ''}
+  `;
+  document.getElementById('item-detail-modal').classList.add('open');
+}
+
+function closeItemDetail() {
+  document.getElementById('item-detail-modal').classList.remove('open');
 }
 
 // ── ROUTING (hash-based: #profile/username) ───────────────────────────────────
