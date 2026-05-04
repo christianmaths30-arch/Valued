@@ -601,10 +601,10 @@ body[data-view=profile] .profile-view{display:block}
 
 <!-- ADD ITEM MODAL -->
 <div class="modal-overlay" id="add-item-modal">
-  <div class="modal" style="max-width:500px">
+  <div class="modal" style="max-width:520px;max-height:92vh;overflow-y:auto">
     <button class="modal-close" onclick="closeAddItemModal()">✕</button>
     <h3>Add item</h3>
-    <p class="modal-sub">Upload a photo and fill in the details.</p>
+    <p class="modal-sub">Fill in what you know — more detail makes a stronger listing.</p>
     <p class="modal-err" id="item-err"></p>
     <div class="field">
       <label>Photo</label>
@@ -620,16 +620,26 @@ body[data-view=profile] .profile-view{display:block}
       </div>
     </div>
     <div class="field"><label>Item title</label><input type="text" id="item-title" placeholder="e.g. Shohei Ohtani signed jersey — 2023 WBC"/></div>
-    <div class="field"><label>Sport / category</label>
-      <select id="item-sport">
-        <option value="">Select sport</option>
-        <option>Baseball</option><option>Basketball</option><option>Football</option>
-        <option>Hockey</option><option>Soccer</option><option>Tennis</option>
-        <option>Golf</option><option>Boxing / MMA</option><option>Other</option>
-      </select>
+    <div class="field"><label>Athlete / subject</label><input type="text" id="item-athlete" placeholder="e.g. Shohei Ohtani"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="field"><label>Sport / category</label>
+        <select id="item-sport">
+          <option value="">Select sport</option>
+          <option>Baseball</option><option>Basketball</option><option>Football</option>
+          <option>Hockey</option><option>Soccer</option><option>Tennis</option>
+          <option>Golf</option><option>Boxing / MMA</option><option>Other</option>
+        </select>
+      </div>
+      <div class="field"><label>Condition</label>
+        <select id="item-condition">
+          <option value="">Select condition</option>
+          <option>Mint</option><option>Near Mint</option><option>Excellent</option>
+          <option>Good</option><option>Fair</option>
+        </select>
+      </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div class="field"><label>Asking price ($)</label><input type="number" id="item-price" placeholder="0"/></div>
+      <div class="field"><label>Asking price ($)</label><input type="number" id="item-price" placeholder="0" min="0"/></div>
       <div class="field"><label>Status</label>
         <select id="item-status">
           <option value="display">Display only</option>
@@ -637,7 +647,22 @@ body[data-view=profile] .profile-view{display:block}
         </select>
       </div>
     </div>
-    <button class="btn-red" style="width:100%;padding:13px;margin-top:0.5rem" onclick="handleAddItem()">Save item</button>
+    <div class="field">
+      <label>Verification</label>
+      <div class="verify-grid" id="verify-checks">
+        <label class="verify-opt"><input type="checkbox" value="PSA"/> PSA</label>
+        <label class="verify-opt"><input type="checkbox" value="JSA"/> JSA</label>
+        <label class="verify-opt"><input type="checkbox" value="Beckett"/> Beckett</label>
+        <label class="verify-opt"><input type="checkbox" value="SGC"/> SGC</label>
+        <label class="verify-opt"><input type="checkbox" value="MLB Auth"/> MLB Auth</label>
+        <label class="verify-opt"><input type="checkbox" value="NFL Auth"/> NFL Auth</label>
+        <label class="verify-opt"><input type="checkbox" value="NBA Auth"/> NBA Auth</label>
+        <label class="verify-opt"><input type="checkbox" value="Upper Deck"/> Upper Deck</label>
+        <label class="verify-opt"><input type="checkbox" value="Fanatics"/> Fanatics</label>
+      </div>
+    </div>
+    <div class="field"><label>Notes</label><textarea id="item-notes" placeholder="Provenance, purchase history, any extra detail…" rows="3"></textarea></div>
+    <button class="btn-red" style="width:100%;padding:13px;margin-top:0.2rem" onclick="handleAddItem()">Save item</button>
   </div>
 </div>
 
